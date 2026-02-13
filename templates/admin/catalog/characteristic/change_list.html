@@ -1,0 +1,101 @@
+{% extends "admin_custom_list.html" %}
+{% load i18n admin_urls static %}
+
+{% block result_list %}
+<div class="results">
+    <table id="result_list">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Название</th>
+                <th scope="col">Slug</th>
+                <th scope="col">Порядок</th>
+                <th scope="col">Активна</th>
+                <th scope="col">Кол-во значений</th>
+                <th scope="col">Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for characteristic in cl.result_list %}
+            <tr class="{% cycle 'row1' 'row2' %}">
+                <td>{{ characteristic.id }}</td>
+                <th>
+                    <a href="{% url 'admin:catalog_characteristic_change' characteristic.id %}">{{ characteristic.name }}</a>
+                </th>
+                <td>{{ characteristic.slug }}</td>
+                <td>{{ characteristic.order }}</td>
+                <td>
+                    {% if characteristic.is_active %}
+                        <img src="{% static 'admin/img/icon-yes.svg' %}" alt="True">
+                    {% else %}
+                        <img src="{% static 'admin/img/icon-no.svg' %}" alt="False">
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'admin:catalog_characteristicvalue_changelist' %}?characteristic_id__exact={{ characteristic.id }}">
+                        {{ characteristic.get_values_count }}
+                    </a>
+                </td>
+                <td>
+                    <div class="actions-dropdown">
+                        <button type="button" class="actions-btn" onclick="toggleActionsMenu('actions-{{ characteristic.id }}'); event.preventDefault(); event.stopPropagation();">
+                            ⋮
+                        </button>
+                        <div class="actions-menu" id="actions-{{ characteristic.id }}">
+                            <a href="{% url 'admin:catalog_characteristic_change' characteristic.id %}" title="Редактировать">
+                                <span class="action-icon">✏️</span> Редактировать
+                            </a>
+                            <a href="{% url 'admin:catalog_characteristicvalue_add' %}?characteristic_id={{ characteristic.id }}" title="Добавить значение">
+                                <span class="action-icon">➕</span> Добавить значение
+                            </a>
+                            <a href="{% url 'admin:catalog_characteristic_delete' characteristic.id %}" class="delete-link" title="Удалить" onclick="return confirm('Удалить характеристику «{{ characteristic.name }}»?')">
+                                <span class="action-icon">🗑️</span> Удалить
+                            </a>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function toggleActionsMenu(menuId) {
+    const menu = document.getElementById(menuId);
+    const isShowing = menu.classList.contains('show');
+    
+    document.querySelectorAll('.actions-menu.show').forEach(openMenu => {
+        if (openMenu.id !== menuId) {
+            openMenu.classList.remove('show');
+        }
+    });
+    
+    if (!isShowing) {
+        menu.classList.add('show');
+    } else {
+        menu.classList.remove('show');
+    }
+    
+    if (!isShowing) {
+        setTimeout(() => {
+            const closeMenuHandler = function(e) {
+                if (!menu.contains(e.target) && !e.target.classList.contains('actions-btn')) {
+                    menu.classList.remove('show');
+                    document.removeEventListener('click', closeMenuHandler);
+                }
+            };
+            document.addEventListener('click', closeMenuHandler);
+        }, 0);
+    }
+}
+
+document.addEventListener('click', function(e) {
+    if (!e.target.classList.contains('actions-btn')) {
+        document.querySelectorAll('.actions-menu.show').forEach(menu => {
+            menu.classList.remove('show');
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ news.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Разделы</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="{% url 'news:news_list' %}?category=news" 
+                           class="list-group-item list-group-item-action {% if request.GET.category == 'news'  %}active{% endif %}">
+                            <i class="bi bi-megaphone"></i> Новости
+                        </a>
+                        <a href="{% url 'news:news_list' %}?category=announcements" 
+                           class="list-group-item list-group-item-action {% if request.GET.category == 'announcements' %}active{% endif %}">
+                            <i class="bi bi-calendar-event"></i> Анонсы
+                        </a>
+                        <a href="{% url 'news:news_list' %}?category=interesting" 
+                           class="list-group-item list-group-item-action {% if request.GET.category == 'interesting' %}active{% endif %}">
+                            <i class="bi bi-lightbulb"></i> Интересно
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'pages:home' %}">Главная</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'news:news_list' %}">Новости</a></li>
+                    <li class="breadcrumb-item active">{{ news.title|truncatewords:5 }}</li>
+                </ol>
+            </nav>
+
+            <article>
+                <header>
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h1 class="fw-bold mb-3">{{ news.title }}</h1>
+                            <div class="text-muted mb-3">
+                                <i class="bi bi-calendar"></i> {{ news.published_date|date:"d.m.Y H:i" }}
+                                <span class="badge bg-{% if news.category == 'news' %}primary{% elif news.category == 'announcements' %}warning{% else %}info{% endif %} ms-2">
+                                    {{ news.get_category_display }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if news.image %}
+                    <img src="{{ news.image.url }}" class="img-fluid rounded mb-4" alt="{{ news.title }}" style="border-width: 0px; border-style: solid; margin-right: 15px; float: left; width: 400px;">
+                    {% endif %}
+                </header>
+
+                <div class="content mb-5">
+                    {{ news.content|safe }}
+                </div>
+
+                <footer class="border-top pt-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'news:news_list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> К списку новостей
+                        </a>
+                    </div>
+                </footer>
+            </article>
+        </div>
+    </div>
+</div>
+{% endblock %}

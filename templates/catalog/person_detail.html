@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ person.name }} - Дети{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'pages:home' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'catalog:person_list' %}">Дети</a></li>
+            <li class="breadcrumb-item active">{{ person.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                {% if person.photo %}
+                <img src="{{ person.photo.url }}" class="card-img-top" alt="{{ person.name }}" 
+                     >
+                {% else %}
+                <img src="" class="card-img-top" alt="{{ person.name }}" 
+                     >
+                {% endif %}
+                <div class="card-body text-center">
+                    <h2 class="card-title">{{ person.name }}</h2>
+                    <p class="h5 text-muted">{{ person.get_age }}  
+                        {% if person.get_age == 1 %}
+                        год
+                        {% elif person.get_age == 2 or person.get_age == 3 or person.get_age == 4%}
+                        года
+                        {% else %}
+                        лет
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-info-circle"></i> Подробная информация</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">Имя:</th>
+                                    <td>{{ person.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Возраст:</th>
+                                    <td>{{ person.get_age }} 
+                                        {% if person.get_age == 1 %}
+                                        год
+                                        {% elif person.get_age == 2 or person.get_age == 3 or person.get_age == 4%}
+                                        года
+                                        {% else %}
+                                        лет
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Дата публикации:</th>
+                                    <td>{{ person.photo_publish_date|date:"d.m.Y" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">Братья/сестры:</th>
+                                    <td>{{ person.get_siblings_info|safe }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    {% if characteristics %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5>Характеристики</h5>
+                            <div class="row">
+                                {% for char_name, values in characteristics.items %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-header bg-light">
+                                            <strong>{{ char_name }}</strong>
+                                        </div>
+                                        <div class="card-body">
+                                            {% for value in values %}
+                                            <span class="">{{ value }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5>Описание</h5>
+                            <div class="card">
+                                <div class="card-body">
+                                    <p class="card-text">{{ person.description|linebreaks }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <a href="{% url 'catalog:person_list' %}" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left"></i> Вернуться к списку
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

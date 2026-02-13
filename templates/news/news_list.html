@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Новости{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Новости</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="btn-group" role="group">
+                    <a href="{% url 'news:news_list' %}" 
+                    class="btn btn-outline-primary {% if not current_category %}active{% endif %}">
+                        Все новости
+                    </a>
+                    <a href="{% url 'news:news_list' %}?category=news" 
+                    class="btn btn-outline-primary {% if current_category == 'news' %}active{% endif %}">
+                        Новости
+                    </a>
+                    <a href="{% url 'news:news_list' %}?category=announcements" 
+                    class="btn btn-outline-primary {% if current_category == 'announcements' %}active{% endif %}">
+                        Анонсы
+                    </a>
+                    <a href="{% url 'news:news_list' %}?category=interesting" 
+                    class="btn btn-outline-primary {% if current_category == 'interesting' %}active{% endif %}">
+                        Интересно
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% for news in news_list %}
+        <div class="col-lg-4 mb-4">
+            <div class="card card-hover h-100">
+                <div class="card-body">
+                    {% if news.image %}
+                    <a href="{% url 'news:news_detail' news.slug %}"><img src="{{ news.image.url }}" class="img-fluid rounded mb-4" alt="{{ news.title }}" style="width: 100%"></a>
+                    {% endif %}
+                    <h5 class="card-title">{{ news.title }}</h5>
+                    <p class="card-text">{{ news.excerpt }}</p>
+                    <small class="text-muted">
+                        <i class="bi bi-calendar"></i> {{ news.published_date|date:"d.m.Y" }}
+                    </small>
+                    <a href="{% url 'news:news_detail' news.slug %}" class="btn btn-outline-primary btn-sm float-end">
+                        Читать
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-sitemap"></i> Навигация</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% if page.parent %}
+                            <a href="{{ page.parent.get_absolute_url }}" class="list-group-item list-group-item-action">
+                                На уровень выше
+                            </a>
+                        {% endif %}
+                        
+                        {% for sibling in page.parent.children.all %}
+                            <a href="{{ sibling.get_absolute_url }}" 
+                               class="list-group-item list-group-item-action {% if sibling.id == page.id %}active{% endif %}">
+                                {{ sibling.title }}
+                            </a>
+                        {% empty %}
+                            {% for root_page in menu_pages %}
+                                <a href="{{ root_page.get_absolute_url }}" 
+                                   class="list-group-item list-group-item-action {% if root_page.id == page.id %}active{% endif %}">
+                                    {{ root_page.title }}
+                                </a>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            {% if page.get_menu_items %}
+            <div class="card mt-3">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0">Подразделы</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for child in page.get_menu_items %}
+                        <a href="{{ child.get_absolute_url }}" class="list-group-item list-group-item-action">
+                            {{ child.title }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-9">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'pages:home' %}">Главная</a></li>
+                    {% if page.parent %}
+                        {% if page.parent.parent %}
+                            <li class="breadcrumb-item"><a href="{{ page.parent.parent.get_absolute_url }}">{{ page.parent.parent.title }}</a></li>
+                        {% endif %}
+                        <li class="breadcrumb-item"><a href="{{ page.parent.get_absolute_url }}">{{ page.parent.title }}</a></li>
+                    {% endif %}
+                    <li class="breadcrumb-item active">{{ page.title }}</li>
+                </ol>
+            </nav>
+            
+            <article>
+                <h1 class="mb-4">{{ page.title }}</h1>
+                <div class="text-muted mb-4">
+                    <small>
+                        <i class="bi bi-calendar"></i> {{ page.created_at|date:"d.m.Y" }}
+                    </small>
+                </div>
+                
+                <div class="content">
+                    {{ page.get_processed_content|safe }}
+                </div>
+            </article>
+
+            {% if page.get_menu_items %}
+            <div class="row mt-5">
+                <div class="col-12">
+                    <h3 class="mb-4">Подразделы</h3>
+                    <div class="row">
+                        {% for child in page.get_menu_items %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card card-hover h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <i class="bi bi-folder2-open text-primary"></i> {{ child.title }}
+                                    </h5>
+                                    <p class="card-text">{{ child.content|striptags|truncatewords:30 }}</p>
+                                    <a href="{{ child.get_absolute_url }}" class="btn btn-outline-primary btn-sm">
+                                        Подробнее <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

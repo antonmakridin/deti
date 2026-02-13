@@ -1,0 +1,122 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+/* Общие стили для всех списков */
+.results {
+    padding-bottom: 20px;
+}
+
+.actions-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.actions-btn {
+    background: none;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 2px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    color: #666;
+}
+
+.actions-btn:hover {
+    background-color: #f8f9fa;
+    border-color: #999;
+}
+
+.actions-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+    min-width: 160px;
+}
+
+.actions-menu.show {
+    display: block;
+}
+
+.actions-menu a {
+    display: block;
+    padding: 8px 12px;
+    text-decoration: none;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+}
+
+.actions-menu a:hover {
+    background-color: #f8f9fa;
+    color: #000;
+}
+
+.actions-menu a:last-child {
+    border-bottom: none;
+}
+
+.actions-menu a.delete-link {
+    color: #dc3545;
+}
+
+.actions-menu a.delete-link:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Стили для характеристик */
+.char-id {
+    font-size: 11px;
+    color: #666;
+    background: #f0f0f0;
+    padding: 1px 4px;
+    border-radius: 3px;
+    margin-left: 5px;
+}
+
+/* Стили для людей */
+.age-badge {
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* JSON поля */
+.json-field {
+    font-family: monospace;
+    font-size: 11px;
+    background: #f8f9fa;
+    padding: 2px 4px;
+    border-radius: 3px;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Иконки действий */
+.action-icon {
+    margin-right: 5px;
+    font-size: 14px;
+}
+</style>
+{% endblock %}
+
+{% block result_list %}
+<div class="results">
+    {{ block.super }}
+</div>
+{% endblock %}
+
+{% block pagination %}{{ block.super }}{% endblock %}

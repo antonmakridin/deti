@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Дети{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Фильтры -->
+        <div class="col-lg-3 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-filter"></i> Фильтры</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" id="filter-form">
+                        
+                        <!-- Фильтр по возрасту -->
+                        <div class="mb-4">
+                            <label class="form-label"><strong>Возраст</strong></label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <input type="number" name="min_age" class="form-control" placeholder="От" 
+                                        value="{{ min_age }}" min="0" max="100" onchange="this.form.submit()">
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" name="max_age" class="form-control" placeholder="До" 
+                                        value="{{ max_age }}" min="0" max="100" onchange="this.form.submit()">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Остальные фильтры с чекбоксами -->
+                        {% for char_id, data in filter_data.items %}
+                        <div class="mb-4">
+                            <label class="form-label"><strong>{{ data.characteristic.name }}</strong></label>
+                            <div class="filter-checkboxes" style="border: 1px solid #dee2e6; border-radius: 0.375rem; padding: 10px;">
+                                {% for value in data.values %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" 
+                                        name="char_{{ char_id }}" 
+                                        value="{{ value.id }}" 
+                                        id="char_{{ char_id }}_{{ value.id }}"
+                                        {% if value.id|stringformat:"i" in data.selected %}checked{% endif %}>
+                                    <label class="form-check-label" for="char_{{ char_id }}_{{ value.id }}">
+                                        {{ value.value }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg"></i> Применить фильтры
+                            </button>
+                            <a href="{% url 'catalog:person_list' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> Сбросить все
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {% block extra_js %}
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('filter-form');
+            
+            // Автоматическая отправка формы при изменении чекбоксов
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(function(checkbox) {
+                checkbox.addEventListener('change', function() {
+                    // Небольшая задержка для лучшего UX
+                    setTimeout(() => {
+                        form.submit();
+                    }, 300);
+                });
+            });
+
+            // Автоматическая отправка при изменении возраста (с задержкой)
+            const ageInputs = document.querySelectorAll('input[name="min_age"], input[name="max_age"]');
+            let ageTimeout;
+            ageInputs.forEach(function(input) {
+                input.addEventListener('input', function() {
+                    clearTimeout(ageTimeout);
+                    ageTimeout = setTimeout(() => {
+                        form.submit();
+                    }, 800);
+                });
+            });
+            
+            // Сохранение состояния формы при нажатии Enter
+            ageInputs.forEach(function(input) {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        form.submit();
+                    }
+                });
+            });
+        });
+        </script>
+        {% endblock %}
+
+        <!-- Список людей -->
+        <div class="col-lg-9">
+            <h1 class="mb-4">Дети</h1>
+            
+            <!-- Информация о примененных фильтрах -->
+            <div>
+                <div class="alert alert-info">
+                <p><strong>Найдено детей:</strong> {{ page_obj.paginator.count }}</p>
+                </div>
+            </div>
+            
+            <!-- Карточки людей -->
+            <div class="row">
+                {% for person in page_obj %}
+                <div class="col-xl-4 col-lg-6 mb-4">
+                    <div class="card card-hover h-100">
+                        <a href="{{ person.get_absolute_url }}">
+                        {% if person.photo %}
+                        <img src="{{ person.photo.url }}" class="card-img-top" alt="{{ person.name }}" 
+                             >
+                        {% else %}
+                        <img src="" class="card-img-top" alt="{{ person.name }}" 
+                             >
+                        {% endif %}
+                        <div class="card-body text-center">
+                            <h5 class="card-title">{{ person.name }}</h5>
+                            <p class="card-text text-muted">{{ person.get_age }}
+                                {% if person.get_age == 1 %}
+                                год
+                                {% elif person.get_age == 2 or person.get_age == 3 or person.get_age == 4%}
+                                года
+                                {% else %}
+                                лет
+                                {% endif %}
+                            </p>
+                        </div>
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <i class="bi bi-people display-1 text-muted"></i>
+                    <h3 class="text-muted mt-3">Люди не найдены</h3>
+                    <p class="text-muted">Попробуйте изменить параметры фильтрации</p>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Пагинация -->
+            {% if page_obj.has_other_pages %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <!-- Первая страница -->
+                    <li class="page-item {% if page_obj.number == 1 %}disabled{% endif %}">
+                        <a class="page-link" href="?page=1{% for key, value in current_filters.items %}{% if key != 'page' and value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            Первая
+                        </a>
+                    </li>
+
+                    <!-- Предыдущая страница -->
+                    <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+                        <a class="page-link" href="{% if page_obj.has_previous %}?page={{ page_obj.previous_page_number }}{% for key, value in current_filters.items %}{% if key != 'page' and value %}&{{ key }}={{ value }}{% endif %}{% endfor %}{% else %}#{% endif %}">
+                            &laquo;
+                        </a>
+                    </li>
+
+                    <!-- Страницы с отступом -->
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num >= page_obj.number|add:-2 and num <= page_obj.number|add:2 %}
+                            <li class="page-item {% if num == page_obj.number %}active{% endif %}">
+                                {% if num == page_obj.number %}
+                                    <span class="page-link">{{ num }}</span>
+                                {% else %}
+                                    <a class="page-link" href="?page={{ num }}{% for key, value in current_filters.items %}{% if key != 'page' and value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                        {{ num }}
+                                    </a>
+                                {% endif %}
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    <!-- Следующая страница -->
+                    <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+                        <a class="page-link" href="{% if page_obj.has_next %}?page={{ page_obj.next_page_number }}{% for key, value in current_filters.items %}{% if key != 'page' and value %}&{{ key }}={{ value }}{% endif %}{% endfor %}{% else %}#{% endif %}">
+                            &raquo;
+                        </a>
+                    </li>
+
+                    <!-- Последняя страница -->
+                    <li class="page-item {% if page_obj.number == page_obj.paginator.num_pages %}disabled{% endif %}">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% for key, value in current_filters.items %}{% if key != 'page' and value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            Последняя
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+<style>
+.characteristics-preview {
+    min-height: 40px;
+}
+.card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}

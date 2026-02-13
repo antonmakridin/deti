@@ -1,0 +1,325 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+.tree-toggle {
+    cursor: pointer;
+    margin-right: 8px;
+    user-select: none;
+    font-size: 12px;
+    display: inline-block;
+    width: 16px;
+    text-align: center;
+}
+.tree-row {
+    transition: background-color 0.2s;
+}
+.tree-row:hover {
+    background-color: #f8f9fa;
+}
+.actions-dropdown {
+    position: relative;
+    display: inline-block;
+}
+.actions-btn {
+    background: none;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 2px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    color: #666;
+}
+.actions-btn:hover {
+    background-color: #f8f9fa;
+    border-color: #999;
+}
+.actions-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+    min-width: 160px;
+}
+.results {
+    padding-bottom: 95px;
+}
+.actions-menu.show {
+    display: block;
+}
+.actions-menu a {
+    display: block;
+    padding: 8px 12px;
+    text-decoration: none;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+}
+.actions-menu a:hover {
+    background-color: #f8f9fa;
+    color: #000;
+}
+.actions-menu a:last-child {
+    border-bottom: none;
+}
+.actions-menu a.delete-link {
+    color: #dc3545;
+}
+.actions-menu a.delete-link:hover {
+    background-color: #dc3545;
+    color: white;
+}
+</style>
+{% endblock %}
+
+{% block result_list %}
+<div class="results">
+    <table id="result_list">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Название</th>
+                <th>Порядок</th>
+                <th>Активна / В меню</th>
+                <th>Создана</th>
+                <th>Редактирована</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody id="pages-tree">
+            {% for item in cl.result_list %}
+            <tr class="{% cycle 'row1' 'row2' %} tree-row" data-level="{{ item.level }}" data-page-id="{{ item.id }}" data-parent-id="{{ item.parent.id|default:'' }}">
+                <td>{{ item.id }}</td>
+                <th>
+                    <div style="padding-left: {{ item.level|add:0 }}em;">
+                        {% if item.get_children %}
+                            <span class="tree-toggle" data-page-id="{{ item.id }}">▶</span>
+                        {% else %}
+                            <span class="tree-toggle" style="visibility: hidden;">•</span>
+                        {% endif %}
+                        <a href="{% url 'admin:pages_page_change' item.id %}">{{ item.title }}</a>
+                    </div>
+                </th>
+                <td>{{ item.order }}</td>
+                <td>
+                    {% if item.is_active %}
+                        <img src="{% static 'admin/img/icon-yes.svg' %}" alt="True">
+                    {% else %}
+                        <img src="{% static 'admin/img/icon-no.svg' %}" alt="False">
+                    {% endif %}
+                    /
+                    {% if item.show_in_menu %}
+                        <img src="{% static 'admin/img/icon-yes.svg' %}" alt="True">
+                    {% else %}
+                        <img src="{% static 'admin/img/icon-no.svg' %}" alt="False">
+                    {% endif %}
+                </td>
+                <td>{{ item.created_at|date:"d.m.Y H:i" }}</td>
+                <td>{{ item.updated_at|date:"d.m.Y H:i" }}</td>
+                <td>
+                    <div class="actions-dropdown">
+                        <button type="button" class="actions-btn" onclick="toggleActionsMenu('actions-{{ item.id }}'); event.preventDefault(); event.stopPropagation();">
+                            ⋮
+                        </button>
+                        <div class="actions-menu" id="actions-{{ item.id }}">
+                            <a href="/pages/{{ item.get_full_url }}" title="Посмотреть на сайте">
+                                <i class="bi bi-folder-plus"></i> Посмотреть на сайте
+                            </a>
+                            <a href="{% url 'admin:pages_page_add' %}?parent={{ item.id }}" title="Добавить подраздел">
+                                <i class="bi bi-folder-plus"></i> Добавить подраздел
+                            </a>
+                            <a href="{% url 'admin:pages_page_change' item.id %}" title="Редактировать">
+                                <i class="bi bi-pencil"></i> Редактировать
+                            </a>
+                            <a href="{% url 'admin:pages_page_delete' item.id %}" class="delete-link" title="Удалить" onclick="return confirm('Вы уверены, что хотите удалить страницу «{{ item.title }}»?')">
+                                <i class="bi bi-trash"></i> Удалить
+                            </a>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function toggleActionsMenu(menuId) {
+    const menu = document.getElementById(menuId);
+    const isShowing = menu.classList.contains('show');
+    
+    // Свернуть все открытые меню
+    document.querySelectorAll('.actions-menu.show').forEach(openMenu => {
+        if (openMenu.id !== menuId) {
+            openMenu.classList.remove('show');
+        }
+    });
+    
+    // Переключаем текущее меню
+    if (!isShowing) {
+        menu.classList.add('show');
+    } else {
+        menu.classList.remove('show');
+    }
+    
+    // Сворачиваем меню при клике вне его
+    if (!isShowing) {
+        setTimeout(() => {
+            const closeMenuHandler = function(e) {
+                if (!menu.contains(e.target) && !e.target.classList.contains('actions-btn')) {
+                    menu.classList.remove('show');
+                    document.removeEventListener('click', closeMenuHandler);
+                }
+            };
+            document.addEventListener('click', closeMenuHandler);
+        }, 0);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const treeContainer = document.getElementById('pages-tree');
+    const rows = treeContainer.querySelectorAll('.tree-row');
+    const treeState = JSON.parse(localStorage.getItem('pages_tree_state') || '{}');
+    
+    // Функция для получения дочерних элементов
+    function getChildrenRows(parentId) {
+        return Array.from(rows).filter(row => {
+            return row.getAttribute('data-parent-id') === parentId;
+        });
+    }
+    
+    // Функция для получения всех дочерних элементов
+    function getAllDescendants(parentId) {
+        const children = getChildrenRows(parentId);
+        let descendants = [...children];
+        
+        children.forEach(child => {
+            const childId = child.getAttribute('data-page-id');
+            descendants = descendants.concat(getAllDescendants(childId));
+        });
+        
+        return descendants;
+    }
+    
+    // Функция переключения видимости
+    function toggleBranch(toggleElement, forceState = null) {
+        const pageId = toggleElement.getAttribute('data-page-id');
+        const isCurrentlyExpanded = toggleElement.textContent === '▼';
+        const shouldExpand = forceState !== null ? forceState : !isCurrentlyExpanded;
+        
+        // Получаем все дочерние элементы
+        const children = getAllDescendants(pageId);
+        
+        if (shouldExpand) {
+            // Показываем дочерние элементы
+            children.forEach(child => {
+                child.style.display = '';
+            });
+            toggleElement.textContent = '▼';
+        } else {
+            // Скрываем дочерние элементы
+            children.forEach(child => {
+                child.style.display = 'none';
+                // Также сворачиваем их дочерние элементы
+                const childToggle = child.querySelector('.tree-toggle');
+                if (childToggle && childToggle.textContent === '▼') {
+                    toggleBranch(childToggle, false);
+                }
+            });
+            toggleElement.textContent = '▶';
+        }
+        
+        // Сохраняем раскрытость дерева
+        treeState[pageId] = shouldExpand;
+        localStorage.setItem('pages_tree_state', JSON.stringify(treeState));
+    }
+    
+    // Инициализация дерева
+    function initializeTree() {
+        // Сначала скрываем все дочерние элементы
+        rows.forEach(row => {
+            const level = parseInt(row.getAttribute('data-level'));
+            if (level > 0) {
+                row.style.display = 'none';
+            }
+        });
+        
+        // Затем восстанавливаем сохраненное состояние дерева
+        rows.forEach(row => {
+            const toggle = row.querySelector('.tree-toggle');
+            if (toggle && toggle.textContent !== '•') {
+                const pageId = toggle.getAttribute('data-page-id');
+                const shouldBeExpanded = treeState[pageId];
+                
+                if (shouldBeExpanded) {
+                    toggleBranch(toggle, true);
+                }
+            }
+        });
+        
+        // Если нет сохраненного состояния, все свернуто
+        if (Object.keys(treeState).length === 0) {
+            rows.forEach(row => {
+                const toggle = row.querySelector('.tree-toggle');
+                if (toggle && toggle.textContent !== '•') {
+                    toggle.textContent = '▶';
+                }
+            });
+        }
+    }
+    
+    // Обработчики кликов
+    treeContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('tree-toggle')) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleBranch(e.target);
+        }
+    });
+    
+    // Добавляем кнопки управления
+    const toolbar = document.querySelector('#changelist .paginator');
+    if (toolbar) {
+        const collapseAllBtn = document.createElement('button');
+        collapseAllBtn.type = 'button';
+        collapseAllBtn.className = 'button';
+        collapseAllBtn.textContent = '📁 Свернуть все';
+        collapseAllBtn.style.marginRight = '10px';
+        
+        const expandAllBtn = document.createElement('button');
+        expandAllBtn.type = 'button';
+        expandAllBtn.className = 'button';
+        expandAllBtn.textContent = '📂 Развернуть все';
+        
+        collapseAllBtn.addEventListener('click', function() {
+            const toggles = treeContainer.querySelectorAll('.tree-toggle');
+            toggles.forEach(toggle => {
+                if (toggle.textContent === '▼') {
+                    toggleBranch(toggle, false);
+                }
+            });
+        });
+        
+        expandAllBtn.addEventListener('click', function() {
+            const toggles = treeContainer.querySelectorAll('.tree-toggle');
+            toggles.forEach(toggle => {
+                if (toggle.textContent === '▶') {
+                    toggleBranch(toggle, true);
+                }
+            });
+        });
+        
+        toolbar.parentNode.insertBefore(expandAllBtn, toolbar);
+        toolbar.parentNode.insertBefore(collapseAllBtn, toolbar);
+    }
+    
+    initializeTree();
+});
+</script>
+{% endblock %}

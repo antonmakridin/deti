@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ album.title }} - Галерея{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'gallery:album_list' %}" class="text-decoration-none">
+                    Галерея
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">{{ album.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row mb-5">
+        <div class="col-12">
+            <h1 class="display-5 fw-bold mb-3">{{ album.title }}</h1>
+            {% if album.description %}
+            <p class="lead text-muted mb-4">{{ album.description }}</p>
+            {% endif %}
+            <div class="d-flex align-items-center gap-3 text-muted">
+                <span>
+                    {{ album.created_at|date:"d.m.Y" }}
+                </span> |
+                <span>
+                    {{ album.images.count }} фото
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="gallery">
+        {% for image in album.images.all %}
+        <div class="col">
+            <div class="card card-hover h-100 shadow-sm border-0 overflow-hidden" 
+                 data-bs-toggle="modal" 
+                 data-bs-target="#imageModal"
+                 data-image-url="{{ image.image.url }}"
+                 data-image-title="{{ image.title|default:album.title }}"
+                 data-image-description="{{ image.description|default:'' }}">
+                <div class="position-relative" style="height: 250px; overflow: hidden; cursor: pointer;">
+                    <img src="{{ image.image.url }}" 
+                         class="card-img-top w-100 h-100 object-fit-cover" 
+                         alt="{{ image.title|default:album.title }}"
+                         loading="lazy">
+                    <div class="position-absolute top-0 start-0 w-100 h-100 bg-opacity-0 d-flex align-items-center justify-content-center"
+                         style="transition: background-color 0.3s ease;">
+                        <span class="text-white fs-4" style="opacity: 0; transition: opacity 0.3s ease;">
+                            <i class="bi bi-zoom-in"></i>
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    {% if image.title %}
+                    <h6 class="card-title fw-bold">{{ image.title }}</h6>
+                    {% endif %}
+                    
+                    {% if image.description %}
+                    <p class="card-text text-muted small">
+                        {{ image.description|truncatechars:80 }}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="bi bi-image text-muted" style="font-size: 4rem;"></i>
+                <h4 class="mt-3">В альбоме пока нет фотографий</h4>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <a href="{% url 'gallery:album_list' %}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left"></i> Вернуться к альбомам
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="imageModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <img src="" class="img-fluid w-100" id="modalImage" alt="">
+                <div class="p-4">
+                    <p class="text-muted mb-0" id="modalDescription"></p>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i> Закрыть
+                </button>
+                <a href="#" class="btn btn-primary" id="downloadBtn" download>
+                    <i class="bi bi-download"></i> Скачать
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card-hover:hover .position-absolute {
+        background-color: rgba(0, 0, 0, 0.5) !important;
+    }
+    .card-hover:hover .position-absolute span {
+        opacity: 1 !important;
+    }
+    .object-fit-cover {
+        object-fit: cover;
+    }
+    .modal-content {
+        background-color: #f8f9fa;
+    }
+    #modalImage {
+        max-height: 70vh;
+        object-fit: contain;
+    }
+</style>
+
+{% block extra_js %}
+<script>
+    const imageModal = document.getElementById('imageModal');
+    if (imageModal) {
+        imageModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const imageUrl = button.getAttribute('data-image-url');
+            const imageTitle = button.getAttribute('data-image-title');
+            const imageDescription = button.getAttribute('data-image-description');
+            
+            const modalTitle = imageModal.querySelector('.modal-title');
+            const modalImage = imageModal.querySelector('#modalImage');
+            const modalDescription = imageModal.querySelector('#modalDescription');
+            const downloadBtn = imageModal.querySelector('#downloadBtn');
+            
+            modalTitle.textContent = imageTitle;
+            modalImage.src = imageUrl;
+            modalImage.alt = imageTitle;
+            modalDescription.textContent = imageDescription;
+            downloadBtn.href = imageUrl;
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const galleryItems = document.querySelectorAll('#gallery .col');
+        galleryItems.forEach(item => {
+            item.style.opacity = '0';
+            item.style.transform = 'translateY(20px)';
+            item.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        });
+
+        setTimeout(() => {
+            galleryItems.forEach((item, index) => {
+                setTimeout(() => {
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        }, 300);
+    });
+</script>
+{% endblock %}
+{% endblock %}

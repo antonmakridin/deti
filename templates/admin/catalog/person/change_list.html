@@ -1,0 +1,112 @@
+{% extends "admin_custom_list.html" %}
+{% load i18n admin_urls static %}
+
+{% block result_list %}
+<div class="results">
+    <table id="result_list">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Имя</th>
+                <th scope="col">Возраст</th>
+                <th scope="col">Дата рождения</th>
+                <th scope="col">Фото</th>
+                <th scope="col">Опубликовано</th>
+                <th scope="col">Братьев/сестер</th>
+                <th scope="col">Создано</th>
+                <th scope="col">Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for person in cl.result_list %}
+            <tr class="{% cycle 'row1' 'row2' %}">
+                <td>{{ person.id }}</td>
+                <th>
+                    <a href="{% url 'admin:catalog_person_change' person.id %}">{{ person.name }}</a>
+                </th>
+                <td>
+                    <span class="age-badge">{{ person.get_age|default:"-" }} лет</span>
+                </td>
+                <td>{{ person.get_birth_date_display }}</td>
+                <td>
+                    {% if person.photo %}
+                        <img src="{{ person.photo.url }}" alt="{{ person.name }}" style="max-width: 50px; max-height: 50px;">
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td>
+                    {% if person.is_published %}
+                        <img src="{% static 'admin/img/icon-yes.svg' %}" alt="True">
+                    {% else %}
+                        <img src="{% static 'admin/img/icon-no.svg' %}" alt="False">
+                    {% endif %}
+                </td>
+                <td>{{ person.siblings_ids|length|default:"0" }}</td>
+                <td>{{ person.created_at|date:"d.m.Y H:i" }}</td>
+                <td>
+                    <div class="actions-dropdown">
+                        <button type="button" class="actions-btn" onclick="toggleActionsMenu('actions-{{ person.id }}'); event.preventDefault(); event.stopPropagation();">
+                            ⋮
+                        </button>
+                        <div class="actions-menu" id="actions-{{ person.id }}">
+                            <a href="{{ person.get_absolute_url }}" target="_blank" title="Посмотреть на сайте">
+                                <span class="action-icon">👁️</span> Посмотреть
+                            </a>
+                            <a href="{% url 'admin:catalog_person_change' person.id %}" title="Редактировать">
+                                <span class="action-icon">✏️</span> Редактировать
+                            </a>
+                            <a href="{% url 'admin:catalog_personcharacteristic_add' %}?person_id={{ person.id }}" title="Добавить характеристику">
+                                <span class="action-icon">➕</span> Добавить хар-ку
+                            </a>
+                            <a href="{% url 'admin:catalog_person_delete' person.id %}" class="delete-link" title="Удалить" onclick="return confirm('Удалить человека «{{ person.name }}»?')">
+                                <span class="action-icon">🗑️</span> Удалить
+                            </a>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function toggleActionsMenu(menuId) {
+    const menu = document.getElementById(menuId);
+    const isShowing = menu.classList.contains('show');
+    
+    document.querySelectorAll('.actions-menu.show').forEach(openMenu => {
+        if (openMenu.id !== menuId) {
+            openMenu.classList.remove('show');
+        }
+    });
+    
+    if (!isShowing) {
+        menu.classList.add('show');
+    } else {
+        menu.classList.remove('show');
+    }
+    
+    if (!isShowing) {
+        setTimeout(() => {
+            const closeMenuHandler = function(e) {
+                if (!menu.contains(e.target) && !e.target.classList.contains('actions-btn')) {
+                    menu.classList.remove('show');
+                    document.removeEventListener('click', closeMenuHandler);
+                }
+            };
+            document.addEventListener('click', closeMenuHandler);
+        }, 0);
+    }
+}
+
+document.addEventListener('click', function(e) {
+    if (!e.target.classList.contains('actions-btn')) {
+        document.querySelectorAll('.actions-menu.show').forEach(menu => {
+            menu.classList.remove('show');
+        });
+    }
+});
+</script>
+{% endblock %}

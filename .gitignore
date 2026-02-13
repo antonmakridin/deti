@@ -1,0 +1,16 @@
+venv/
+catalog/__pycache__
+catalog/migration
+gallery/__pycache__
+gallery/migration
+myproject/__pycache__
+news/__pycache__
+news/migration
+pages/__pycache__
+pages/migration
+__pycache__
+migrations
+db.sqlite3
+media/catalog/people
+.env
+sync.py
