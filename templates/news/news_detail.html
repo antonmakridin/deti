@@ -59,7 +59,7 @@
                 </header>
 
                 <div class="content mb-5">
-                    {{ news.content|safe }}
+                    {{ news.get_processed_content|safe }}
                 </div>
 
                 <footer class="border-top pt-3">

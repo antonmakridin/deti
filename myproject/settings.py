@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'news',
     'gallery',
     'catalog',
+    'documents',
     
     # эдиторы и прочее'
     'mptt',
@@ -56,6 +57,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'pages.context_processors.menu_pages',
+                'documents.context_processors.all_documents',
             ],
         },
     },

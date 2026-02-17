@@ -9,6 +9,7 @@ urlpatterns = [
     path('gallery/', include('gallery.urls')),
     path('catalog/', include('catalog.urls')),
     path('', include('pages.urls')),
+    path('', include('documents.urls')),
 ]
 
 if settings.DEBUG:
