@@ -42,7 +42,7 @@
                                 <li><hr class="dropdown-divider"></li>
                                 {% for child in page.get_menu_items %}
                                 <li>
-                                    <a class="dropdown-item" href="/{{ child.get_absolute_url }}">
+                                    <a class="dropdown-item" href="{{ child.get_absolute_url }}">
                                         {{ child.title }}
                                     </a>
                                 </li>

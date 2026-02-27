@@ -15,7 +15,7 @@ def document_upload_path(instance, filename):
 
     return os.path.join(
         'documents',
-        timezone.now().strftime('%Y/%m'),
+        timezone.now().strftime('%Y/%m/%d'),
         f"{hash_name}{ext}"
     )
 

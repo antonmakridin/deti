@@ -49,7 +49,7 @@ class PageAdmin(MPTTModelAdmin):
     title_with_toggle.short_description = 'Название'
     
     def get_full_url_display(self, obj):
-        return format_html('<code>/pages/{}</code>', obj.get_full_url())
+        return format_html('<code><a href="/{}" title="" alt="">ссылка</a></code>', obj.get_full_url())
     get_full_url_display.short_description = 'Полный URL'
     
     def get_queryset(self, request):
