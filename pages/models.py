@@ -55,6 +55,19 @@ class Page(MPTTModel):
             return f"{self.parent.get_full_url()}/{self.slug}"
         return self.slug
     
+    def get_ancestors_ids(self):
+        #  Получить список ID всех родителей страницы
+        return [ancestor.id for ancestor in self.get_ancestors()]
+    
+    def get_root(self):
+        # Получить корневую страницу для текущей страницы"""
+        if self.is_root_node():
+            return self
+        ancestors = self.get_ancestors()
+        if ancestors:
+            return ancestors[0]
+        return self
+    
     def clean(self):
         # Валидация уникальности урла в родительской папке
         from django.core.exceptions import ValidationError
@@ -99,7 +112,7 @@ class Page(MPTTModel):
             try:
                 linked_page = Page.objects.get(id=page_id, is_active=True)
                 text = link_text if link_text else linked_page.title
-                return f'<a href="{linked_page.get_absolute_url()}" class="page-link">{text}</a>'
+                return f'<a href="{linked_page.get_absolute_url()}">{text}</a>'
             except Page.DoesNotExist:
                 return ""
             
@@ -111,7 +124,7 @@ class Page(MPTTModel):
             try:
                 document = Document.objects.get(id=doc_id, is_active=True)
                 text = link_text if link_text else document.title
-                return f'<a href="{document.get_absolute_url()}" class="page-link">{text}</a>'
+                return f'<a href="{document.get_absolute_url()}">{text}</a>'
             except Document.DoesNotExist:
                 return ""
         

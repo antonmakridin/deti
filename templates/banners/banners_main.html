@@ -1,0 +1,11 @@
+{% for banner in banners %}
+<div class="col-md-3">
+    <div class="category-item">
+        <div class="thumb">
+            <a href="{% if banner.link %}{{ banner.link }}{% else %}#{% endif %}">
+                <img class="w-100" src="{{ banner.image.url }}" alt="{{ banner.title }}">
+            </a>
+        </div>
+    </div>
+</div>
+{% endfor %}

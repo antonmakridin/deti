@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'Rubik Medium';
+    src: url('fonts/rubik.eot');
+    src: url('fonts/rubik.eot?#iefix') format('embedded-opentype'),
+         url('fonts/rubik.woff2') format('woff2'),
+         url('fonts/rubik.woff') format('woff'),
+         url('fonts/rubik.ttf')  format('truetype'),
+         url('fonts/rubik.svg#Rubik Medium') format('svg');
+}

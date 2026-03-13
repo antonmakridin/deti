@@ -1,0 +1,14 @@
+{% for link in linkses %}
+<div class="swiper-slide link-logo-item">
+    <div class="link-content">
+        <a href="{% if link.link %}{{ link.link }}{% else %}#{% endif %}" class="link-image">
+            <img src="{{ link.image.url }}" alt="{{ link.title }}">
+        </a>
+        {% if link.title %}
+        <div class="link-caption text-center">
+            <h5>{{ link.title }}</h5>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}

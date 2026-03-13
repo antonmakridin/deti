@@ -1,90 +1,239 @@
-
 {% load static %}
+{% load links_tags %}
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Мой сайт{% endblock %}</title>
-    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
-    <link href="{% static 'font/bootstrap-icons.css' %}" rel="stylesheet">
+    <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon" />
+    <link href="{% static 'css/fredoka.css' %}" rel="stylesheet">
+    <link href="{% static 'css/rubik.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/ionicons.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/animate.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/aos.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/slicknav.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/swiper.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/style.css' %}" rel="stylesheet" />
 </head>
+
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'pages:home' %}">
-                 Дети.Егов66.Ру
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'pages:home' %}">
-                            Главная
-                        </a>
-                    </li>
-                    {% for page in menu_pages %}
-                        {% if page.get_menu_items %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="/{{ page.get_full_url }}" role="button" 
-                               data-bs-toggle="dropdown" aria-expanded="false">
-                                {{ page.title }}
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <a class="dropdown-item" href="/{{ page.get_full_url }}">
-                                        {{ page.title }}
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                {% for child in page.get_menu_items %}
-                                <li>
-                                    <a class="dropdown-item" href="{{ child.get_absolute_url }}">
-                                        {{ child.title }}
-                                    </a>
-                                </li>
-                                {% endfor %}
-                            </ul>
-                        </li>
-                        {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="/{{ page.get_full_url }}">
-                                {{ page.title }}
-                            </a>
-                        </li>
-                        {% endif %}
-                    {% endfor %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'news:news_list' %}">
-                            Новости
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'gallery:album_list' %}">
-                            Галерея
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'catalog:person_list' %}">
-                            Дети
-                        </a>
-                    </li>
-                </ul>
+
+    <div class="wrapper home-default-wrapper">
+        <div class="preloader-wrap">
+            <div class="preloader">
+                <span class="dot"></span>
+                <div class="dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
             </div>
         </div>
-    </nav>
-    
-    <main>
-        {% block content %}
-        {% endblock %}
-    </main>
 
-    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
-    
+        <header class="header-wrapper">
+            <div class="header-top">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-5 col-md-4 col-lg-6">
+                        </div>
+                        <div class="col-xs-12 col-sm-7 col-md-8 col-lg-6 sm-pl-0 xs-pl-15 header-top-right">
+                            <div class="header-info">
+                                <a href="#"><i class="fa fa-envelope"></i> Электронная приемная</a>
+                                <a href="#"><i class="fa fa-user"></i> Вход</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="header-middle">
+                <div class="container">
+                    <div class="row row-gutter-0 align-items-center">
+                        <div class="col-12">
+                            <div class="header-align">
+                                <div class="header-align-left">
+                                    <div class="header-logo-area">
+                                        <a alt="Региональный оператор государственного банка данных о детях, оставшихся без попечения родителей, Свердловской области"
+                                            title="Региональный оператор государственного банка данных о детях, оставшихся без попечения родителей, Свердловской области"
+                                            href="/">
+                                            <img class="logo-main" src="{% static 'img/logo.png' %}"
+                                                alt="Региональный оператор государственного банка данных о детях, оставшихся без попечения родителей, Свердловской области">
+                                            <span>Региональный оператор государственного банка данных о детях,
+                                                оставшихся без попечения родителей, Свердловской области</span>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="header-align-right">
+                                    <div class="header-action-area">
+                                        <div class="header-action-wishlist logo-gos">
+                                            <a href="https://msp.midural.ru"
+                                                alt="Министерство социальной политики Свердловской области"
+                                                title="Министерство социальной политики Свердловской области"><img
+                                                    src="https://deti.egov66.ru/source/images/child/logo.png"></a>
+                                        </div>
+                                        <div class="header-action-cart logo-gos">
+                                            <a href="https://midural.ru"><img alt="Правительство Свердловской области"
+                                                    title="Правительство Свердловской области"
+                                                    src="https://deti.egov66.ru/source/images/gerb.png"></a>
+                                        </div>
+                                        <button class="btn-menu d-md-none">
+                                            <i class="ion-navicon"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="header-area header-default">
+                <div class="container">
+                    <div class="row row-gutter-0 align-items-center">
+                        <div class="col-lg-12 sticky-md-none">
+                            <div class="header-navigation-area d-none d-md-block">
+                                <ul class="main-menu nav position-relative">
+                                    <li><a href="{% url 'catalog:person_list' %}">Информация о детях</a></li>
+                                    <li><a href="{% url 'news:news_list' %}">Новости</a></li>
+                                    {% for page in menu_pages %}
+                                    <li><a href="/{{ page.get_full_url }}">{{ page.title }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="header-area header-default sticky-header">
+                <div class="container">
+                    <div class="row row-gutter-0 align-items-center">
+                        <div class="col-4 col-sm-6 col-lg-1 sticky-none">
+                            <div class="header-logo-area">
+                                <a href="/">
+                                    <img class="logo-main" src="{% static 'img/logo.png' %}" />
+                                    <img class="logo-light" src="{% static 'img/logo.png' %}" />
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-lg-10 sticky-md-none">
+                            <div class="header-navigation-area d-none d-md-block">
+                                <ul class="main-menu nav position-relative">
+                                    <li><a href="{% url 'catalog:person_list' %}">Информация о детях</a></li>
+                                    <li><a href="{% url 'news:news_list' %}">Новости</a></li>
+                                    {% for page in menu_pages %}
+                                    <li><a href="/{{ page.get_full_url }}">{{ page.title }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-8 col-sm-6 col-lg-1sticky-none">
+                            <div class="header-action-area">
+                                <button class="btn-menu d-lg-none">
+                                    <i class="ion-navicon"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+
+
+
+
+
+
+
+
+        <!-- Navigation -->
+
+
+        <main class="main-content">
+
+            {% block content %}
+            {% endblock %}
+
+            
+            <div class="link-logo-area link-logo-default-area">
+                <div class="container-fluid">
+                    <div class="row align-items-center">
+                        <div class="col-lg-12">
+                            <div class="swiper-container link-logo-slider-container">
+                                <div class="swiper-wrapper link-logo-slider">
+                                    {% show_main_links %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer-area default-style">
+            <div class="footer-bottom">
+                <div class="container">
+                    <div class="footer-bottom-content">
+                        <div class="row text-center">
+                            <div class="col-sm-12">
+                                <div class="widget-copyright">
+                                    <p><i class="fa fa-copyright"></i> 2026 «Региональный оператор государственного
+                                        банка данных о детях, оставшихся без попечения родителей, Свердловской области»
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-shape bg-img" data-bg-img="{% static 'img/photos/footer1.png' %}"></div>
+        </footer>
+
+        <div class="scroll-to-top"><span class="fa fa-angle-double-up"></span></div>
+
+
+        <aside class="off-canvas-wrapper">
+            <div class="off-canvas-inner">
+                <div class="off-canvas-overlay d-none"></div>
+                <div class="off-canvas-content">
+                    <div class="off-canvas-header">
+                        <div class="close-action">
+                            <button class="btn-close"><i class="fa fa-close"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="off-canvas-item">
+                        <div class="res-mobile-menu">
+                        </div>
+                    </div>
+                    <div class="off-canvas-footer"></div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script src="{% static 'js/modernizr.js' %}"></script>
+    <script src="{% static 'js/jquery-main.js' %}"></script>
+    <script src="{% static 'js/jquery-migrate.js' %}"></script>
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/jquery.appear.js' %}"></script>
+    <script src="{% static 'js/swiper.min.js' %}"></script>
+    <script src="{% static 'js/fancybox.min.js' %}"></script>
+    <script src="{% static 'js/aos.min.js' %}"></script>
+    <script src="{% static 'js/jquery.slicknav.js' %}"></script>
+    <script src="{% static 'js/tippy.all.min.js' %}"></script>
+    <script src="{% static 'js/isotope.pkgd.min.js' %}"></script>
+    <script src="{% static 'js/slick.min.js' %}"></script>
+    <script src="{% static 'js/wow.min.js' %}"></script>
+    <script src="{% static 'js/jquery-zoom.min.js' %}"></script>
+    <script src="{% static 'js/custom.js' %}"></script>
+
+
     {% block extra_js %}
     {% endblock %}
 </body>
+
 </html>

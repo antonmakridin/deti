@@ -64,7 +64,7 @@ class News(models.Model):
             try:
                 linked_page = Page.objects.get(id=page_id, is_active=True)
                 text = link_text if link_text else linked_page.title
-                return f'<a href="{linked_page.get_absolute_url()}" class="page-link">{text}</a>'
+                return f'<a href="{linked_page.get_absolute_url()}">{text}</a>'
             except Page.DoesNotExist:
                 return ""
             
@@ -76,7 +76,7 @@ class News(models.Model):
             try:
                 document = Document.objects.get(id=doc_id, is_active=True)
                 text = link_text if link_text else document.title
-                return f'<a href="{document.get_absolute_url()}" class="page-link">{text}</a>'
+                return f'<a href="{document.get_absolute_url()}">{text}</a>'
             except Document.DoesNotExist:
                 return ""
         

@@ -23,6 +23,8 @@ INSTALLED_APPS = [
     # приложения
     'pages',
     'news',
+    'banners',
+    'links',
     'gallery',
     'catalog',
     'documents',

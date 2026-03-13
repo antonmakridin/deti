@@ -3,108 +3,65 @@
 {% block title %}{{ page.title }}{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-lg-3 mb-4">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-sitemap"></i> Навигация</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
+<section class="page-title-area">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-12 m-auto">
+                <div class="page-title-content text-center">
+                    <div class="bread-crumbs">
+                        <a href="/"> Главная </a><span class="breadcrumb-sep"> / </span>
                         {% if page.parent %}
-                            <a href="{{ page.parent.get_absolute_url }}" class="list-group-item list-group-item-action">
-                                Назад
-                            </a>
-                        {% endif %}
-                        
-                        {% for sibling in page.parent.children.all %}
-                            <a href="{{ sibling.get_absolute_url }}" 
-                               class="list-group-item list-group-item-action {% if sibling.id == page.id %}active{% endif %}">
-                                {{ sibling.title }}
-                            </a>
-                        {% empty %}
-                            {% for root_page in menu_pages %}
-                                <a href="{{ root_page.get_absolute_url }}" 
-                                   class="list-group-item list-group-item-action {% if root_page.id == page.id %}active{% endif %}">
-                                    {{ root_page.title }}
-                                </a>
-                            {% endfor %}
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-
-            {% if page.get_menu_items %}
-            <div class="card mt-3">
-                <div class="card-header bg-secondary text-white">
-                    <h6 class="mb-0">Подразделы</h6>
-                </div>
-                <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
-                        {% for child in page.get_menu_items %}
-                        <a href="{{ child.get_absolute_url }}" class="list-group-item list-group-item-action">
-                            {{ child.title }}
-                        </a>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-        </div>
-
-        <div class="col-lg-9">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'pages:home' %}">Главная</a></li>
-                    {% if page.parent %}
                         {% if page.parent.parent %}
-                            <li class="breadcrumb-item"><a href="{{ page.parent.parent.get_absolute_url }}">{{ page.parent.parent.title }}</a></li>
+                        <a href="{{ page.parent.parent.get_absolute_url }}"> {{ page.parent.parent.title }} </a><span
+                            class="breadcrumb-sep"> / </span>
                         {% endif %}
-                        <li class="breadcrumb-item"><a href="{{ page.parent.get_absolute_url }}">{{ page.parent.title }}</a></li>
-                    {% endif %}
-                    <li class="breadcrumb-item active">{{ page.title }}</li>
-                </ol>
-            </nav>
-            
-            <article>
-                <h1 class="mb-4">{{ page.title }}</h1>
-                <div class="text-muted mb-4">
-                    <small>
-                        <i class="bi bi-calendar"></i> {{ page.created_at|date:"d.m.Y" }}
-                    </small>
-                </div>
-                
-                <div class="content">
-                    {{ page.get_processed_content|safe }}
-                </div>
-            </article>
-
-            {% if page.get_menu_items %}
-            <div class="row mt-5">
-                <div class="col-12">
-                    <h3 class="mb-4">Подразделы</h3>
-                    <div class="row">
-                        {% for child in page.get_menu_items %}
-                        <div class="col-md-6 mb-3">
-                            <div class="card card-hover h-100">
-                                <div class="card-body">
-                                    <h5 class="card-title">
-                                        <i class="bi bi-folder2-open text-primary"></i> {{ child.title }}
-                                    </h5>
-                                    <p class="card-text">{{ child.content|striptags|truncatewords:30 }}</p>
-                                    <a href="{{ child.get_absolute_url }}" class="btn btn-outline-primary btn-sm">
-                                        Подробнее <i class="bi bi-arrow-right"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
+                        <a href="{{ page.parent.get_absolute_url }}"> {{ page.parent.title }} </a><span
+                            class="breadcrumb-sep"> / </span>
+                        {% endif %}
+                        <span class="active"> {{ page.title|truncatewords:5 }} </span>
                     </div>
                 </div>
             </div>
-            {% endif %}
         </div>
     </div>
-</div>
+</section>
+<section class="blog-area blog-grid-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 order-1 order-lg-0">
+                <div class="sidebar-area blog-sidebar-area">
+                    <div class="widget-item widget-item2">
+                        {% with root_page=page.get_root %}
+                            {% for root in menu_pages %}
+                                <div class="widget-title blog-post-title">
+                                    <a href="{{ root.get_absolute_url }}">
+                                        <h3 class="{% if root.id == root_page.id %}titleactive{% else %}title{% endif %}">
+                                            {{ root.title }}
+                                        </h3>
+                                    </a>
+                                </div>
+                                {% if root.id == root_page.id %}
+                                    {% include "pages/includes/menu_recursive.html" with current_page=page parent_page=root level=1 %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8 order-0 order-lg-1">
+                <article>
+                    <header>
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h1 class="fw-bold mb-3">{{ page.title }}</h1>
+                            </div>
+                        </div>
+                    </header>
+                    <div class="content mb-5">
+                        {{ page.get_processed_content|safe }}
+                    </div>
+                </article>
+            </div>
+        </div>
+</section>
 {% endblock %}
